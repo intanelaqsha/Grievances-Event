@@ -9,7 +9,7 @@ df = pd.read_csv("Grievances-Grid view.csv")
 df["Date Filed"] = pd.to_datetime(df["Date Filed"], errors="coerce")
 
 # Convert list-like columns
-for col in ["Suppliers", "Mills", "PIOConcessions", "Sources", "Issues"]:
+for col in ["Suppliers", "Mills", "PIOConcessions", "Source", "Issues"]:
     df[col] = df[col].fillna("").astype(str).apply(
         lambda x: [i.strip() for i in x.split(";") if i.strip()]
     )
@@ -20,7 +20,7 @@ for col in ["Suppliers", "Mills", "PIOConcessions", "Sources", "Issues"]:
 ISSUE_GROUPS = {
     "Environmental": [
         "Deforestation", "Peatland Loss", "Fires",
-        "Riparian Issues", "Biodiversity loss"
+        "Riparian Issues", "Biodiversity loss", "Environmental Pollution",
     ],
     "Social": [
         "Labor Rights Violations", "Child Labor",
