@@ -1,9 +1,9 @@
-#STEP A - Expanded Sources
 import pandas as pd
 import ast
+import re
 
 # Load file
-df = pd.read_csv("Grievances-Grid view-1.csv", dtype=str)
+df = pd.read_csv("Grievances-Grid view 2.csv", dtype=str)
 df.columns = [c.strip() for c in df.columns]
 
 # Tambahkan ID yang akan dipakai sampai Step 3
@@ -29,9 +29,12 @@ for col in multi_cols:
 def split_source(val):
     if pd.isna(val) or str(val).strip() == "":
         return []
-    s = str(val).replace("[", "").replace("]", "")
-    parts = re.split("[,;]", s)
-    return list({p.strip() for p in parts if p.strip()})
+    #s = str(val).replace("[", "").replace("]", "")
+    s = str(val).strip()
+    parts = re.split(r",(?!\s)", s)
+    #parts = re.split("[,;]", s)
+    parts = [p.strip() for p in parts if p.strip()]
+    return parts
 
 df["Source"] = df["Source"].apply(split_source)
 
@@ -66,4 +69,4 @@ df_expanded["Row_ID"] = df_expanded.index.astype(int)
 print("Original grievances:", df.shape[0])
 print("Expanded rows:", df_expanded.shape[0])
 df_expanded.head()
-len(df_expanded)
+
