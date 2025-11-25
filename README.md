@@ -1,6 +1,7 @@
 # Related Grievances
 
-Version 1
+
+
 step 1. expand each sources
 
 step 2. grouping entity same source; if 1 entity overlap (Suppliers/Mills/Plots) in same source, Merge.
