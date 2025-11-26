@@ -202,6 +202,43 @@ for _, row in df_step2.iterrows():
 
 df_final = pd.DataFrame(merged_events)
 
+
+# =====================================================
+# STEP 4 – ADD GROUP INFO
+# =====================================================
+print("\n[STEP 4] Adding Plot & Mill Groups...")
+
+# Load mapping files
+pio_file = "PIOConcessions-v2-Grid view.csv"
+mills_file = "Mills-Grid view.csv"
+
+df_pio = pd.read_csv(pio_file, dtype=str)
+df_mills = pd.read_csv(mills_file, dtype=str)
+
+# Buat dictionary ID -> Group
+pio_dict = pd.Series(df_pio["Group"].values, index=df_pio["ID"]).to_dict()
+mills_dict = pd.Series(df_mills["Group"].values, index=df_mills["UML_ID"]).to_dict()
+
+# Function untuk lookup group
+def get_groups(ids_list, mapping_dict):
+    # ids_list is already a list of IDs, no need to split
+    valid_groups = []
+    for i in ids_list:
+        if i in mapping_dict:
+            group_value = mapping_dict[i]
+            # Check if the group_value is not NaN (float) before adding
+            if pd.notna(group_value):
+                valid_groups.append(str(group_value)) # Ensure it's a string
+    return ", ".join(sorted(set(valid_groups))) if valid_groups else ""
+
+# Apply ke df_final
+df_final["Plot_Group"] = df_final["PIOConcessions"].apply(lambda x: get_groups(x, pio_dict))
+df_final["Mill_Group"] = df_final["Mills"].apply(lambda x: get_groups(x, mills_dict))
+
+print("✓ Added Plot_Group and Mill_Group")
+
+
+
 # =====================================================
 # FINAL OUTPUT
 # =====================================================
