@@ -11,3 +11,5 @@ step 3. Cross-merging for other source, just if
  a. time in range
  
  b. min overlap (1 suppliers AND 1 Plot/Mills)
+
+ step 4. lookup group company for plots and mills
