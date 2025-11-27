@@ -162,6 +162,10 @@ for _, row in df_step2.iterrows():
     for evt in merged_events:
 
         supplier_overlap = len(set(row["Suppliers"]) & set(evt["Suppliers"])) >= 1
+
+        row_has_infra = len(row["Mills"]) > 0 or len(row["PIOConcessions"]) > 0
+        evt_has_infra = len(evt["Mills"]) > 0 or len(evt["PIOConcessions"]) > 0
+
         infra_overlap = (
             len(set(row["Mills"]) & set(evt["Mills"])) >= 1 or
             len(set(row["PIOConcessions"]) & set(evt["PIOConcessions"])) >= 1
@@ -169,21 +173,29 @@ for _, row in df_step2.iterrows():
 
         time_ok = time_overlap(row["Date_Filed"], evt["Latest_Date"], TIME_WINDOW_DAYS)
 
-        if supplier_overlap and infra_overlap and time_ok:
+        if time_ok and supplier_overlap:
 
-            evt["Suppliers"] = uniq_list(evt["Suppliers"] + row["Suppliers"])
-            evt["Mills"] = uniq_list(evt["Mills"] + row["Mills"])
-            evt["PIOConcessions"] = uniq_list(evt["PIOConcessions"] + row["PIOConcessions"])
-            evt["Issues"] = uniq_list(evt["Issues"] + row["Issues"])
-            evt["Source"] = uniq_list(evt["Source"] + row["Source"])
-            evt["Grievance_List"] = uniq_list(evt["Grievance_List"] + row["Grievance_List"])
+    # Case 1: both have infra → must check infra overlap
+          if row_has_infra and evt_has_infra:
+             if not infra_overlap:
+              continue
 
-            evt["Grievance_Count"] = len(evt["Grievance_List"])
-            evt["Earliest_Date"] = min(evt["Earliest_Date"], row["Date_Filed"])
-            evt["Latest_Date"] = max(evt["Latest_Date"], row["Date_Filed"])
+    # Case 2: one or both have no infra → supplier overlap saja cukup
 
-            merged = True
-            break
+          evt["Suppliers"] = uniq_list(evt["Suppliers"] + row["Suppliers"])
+          evt["Mills"] = uniq_list(evt["Mills"] + row["Mills"])
+          evt["PIOConcessions"] = uniq_list(evt["PIOConcessions"] + row["PIOConcessions"])
+          evt["Issues"] = uniq_list(evt["Issues"] + row["Issues"])
+          evt["Source"] = uniq_list(evt["Source"] + row["Source"])
+          evt["Grievance_List"] = uniq_list(evt["Grievance_List"] + row["Grievance_List"])
+
+          evt["Grievance_Count"] = len(evt["Grievance_List"])
+          evt["Earliest_Date"] = min(evt["Earliest_Date"], row["Date_Filed"])
+          evt["Latest_Date"] = max(evt["Latest_Date"], row["Date_Filed"])
+
+          merged = True
+          break
+
 
     if not merged:
         merged_events.append({
@@ -210,7 +222,7 @@ print("\n[STEP 4] Adding Plot & Mill Groups...")
 
 # Load mapping files
 pio_file = "PIOConcessions-v2-Grid view.csv"
-mills_file = "Mills-Grid view.csv"
+mills_file = "Mills-Grid view (10).csv"
 
 df_pio = pd.read_csv(pio_file, dtype=str)
 df_mills = pd.read_csv(mills_file, dtype=str)
